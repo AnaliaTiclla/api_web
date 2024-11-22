@@ -1,0 +1,29 @@
+version: '3'
+
+services:
+  crud:
+    build: crud
+    mem_limit: 512m
+    ports:
+      - "8080:8080"
+    environment:
+      DB_URL: jdbc:postgresql://postgres:5432/crud?createDatabaseIfNotExist=true&serverTimezone=UTC
+      DB_USER_NAME: postgres
+      DB_PASSWORD: password
+    restart: always
+    depends_on:
+      postgres:
+          condition: service_healthy
+  postgres:
+    image: postgres:latest
+    ports:
+      - "5433:5432"
+    environment:
+      POSTGRES_PASSWORD: password
+      POSTGRES_USER: postgres
+      POSTGRES_DB: crud
+    restart: always
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      timeout: 10s
+      retries: 10
